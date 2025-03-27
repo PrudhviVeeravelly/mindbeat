@@ -1,17 +1,15 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
-buildCommand = ""
 
 [deploy]
 startCommand = ""  # Let Dockerfile handle the start command
 healthcheckPath = "/"
-healthcheckTimeout = 60
+healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
 [deploy.env]
-PORT = "8000"
 ENVIRONMENT = "production"
 USE_HTTPS = "true"
 ALLOWED_HOSTS = "*.railway.app"

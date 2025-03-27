@@ -34,11 +34,11 @@ RUN useradd -m -u 1000 appuser \
 USER appuser
 
 # Expose port
-EXPOSE $PORT
+EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:$PORT/ || exit 1
+    CMD curl -f http://localhost:8000/ || exit 1
 
 # Start command
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--log-level", "info"]

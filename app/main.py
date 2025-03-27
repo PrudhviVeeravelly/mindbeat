@@ -1,24 +1,13 @@
 """Main application module."""
 
-import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sentry_sdk.integrations.fastapi import FastApiIntegration
 
 from app.api import auth, frontend
 from app.core.config import settings
-
-# Initialize Sentry
-if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        environment=settings.SENTRY_ENVIRONMENT,
-        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
-        integrations=[FastApiIntegration()]
-    )
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -55,16 +44,6 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(frontend.router, tags=["frontend"])
 
 @app.get("/")
-async def root():
+def root():
     """Root endpoint."""
     return {"status": "ok"}
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for monitoring."""
-    return {
-        "status": "healthy",
-        "version": settings.VERSION,
-        "environment": settings.ENVIRONMENT,
-        "spotify_configured": settings.validate_spotify_credentials()
-    }
