@@ -1,4 +1,4 @@
-"""Frontend routes for the MindBeat application."""
+"""Frontend routes for the application."""
 
 from datetime import datetime, timedelta
 import logging
@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.services.spotify import SpotifyService
 from app.services.mood_analyzer import MoodAnalyzer
-from app.config import settings
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
