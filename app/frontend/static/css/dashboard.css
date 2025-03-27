@@ -1,0 +1,23 @@
+.progress-bar {
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: rgb(79, 70, 229);
+}
+
+.progress-track {
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: rgb(229, 231, 235);
+}
+
+.energy-bar {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: rgb(79, 70, 229);
+}
+
+.energy-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: rgb(229, 231, 235);
+}
