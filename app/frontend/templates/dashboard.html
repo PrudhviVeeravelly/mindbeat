@@ -1,152 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - MindBeat</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <h1 class="text-2xl font-bold text-gray-800">MindBeat</h1>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        {% if user.images and user.images[0].url %}
-                        <img src="{{ user.images[0].url }}" alt="Profile" class="h-8 w-8 rounded-full">
-                        {% endif %}
-                        <span class="ml-3 text-gray-700">{{ user.display_name }}</span>
-                        <a href="/auth/logout" class="ml-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm">
-                            Logout
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </nav>
+{% extends "base.html" %}
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <!-- Mood Overview -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Current Mood Analysis</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Mood Score -->
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-700 mb-2">Overall Mood</h3>
-                        <div class="text-3xl font-bold text-blue-600">
-                            {{ "%.0f"|format(current_mood.score * 100) }}%
-                        </div>
-                        <p class="text-gray-600 mt-2">{{ current_mood.description }}</p>
-                    </div>
-                    
-                    <!-- Energy Level -->
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-700 mb-2">Energy Level</h3>
-                        <div class="text-3xl font-bold text-green-600">
-                            {{ "%.0f"|format(current_mood.energy * 100) }}%
-                        </div>
-                    </div>
-                </div>
-            </div>
+{% block title %}Dashboard - MindBeat{% endblock %}
 
-            <!-- Mood Trend -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">7-Day Mood Trend</h2>
-                <div class="h-64">
-                    <canvas id="moodTrendChart"></canvas>
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Current Mood -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Current Mood</h2>
+            <div class="flex items-center justify-center">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-blue-600 mb-2">{{ current_mood.primary_mood }}</div>
+                    <div class="text-gray-600">{{ current_mood.description }}</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Tracks -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Tracks</h2>
-                {% if recent_tracks %}
-                <div class="space-y-4">
-                    {% for track in recent_tracks %}
-                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                        <div>
-                            <h3 class="font-medium text-gray-800">{{ track.name }}</h3>
-                            <p class="text-gray-600">{{ track.artist }}</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-600">Mood Score</div>
-                            <div class="font-medium text-blue-600">
-                                {{ "%.0f"|format(track.features.valence * 100) if track.features else 50 }}%
-                            </div>
-                        </div>
+        <!-- Recent Tracks -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Recent Tracks</h2>
+            <div class="space-y-4">
+                {% for track in recent_tracks[:5] %}
+                <div class="flex items-center space-x-4">
+                    {% if track.album.images %}
+                    <img src="{{ track.album.images[0].url }}" alt="{{ track.name }}" class="w-12 h-12 rounded">
+                    {% endif %}
+                    <div>
+                        <div class="font-medium">{{ track.name }}</div>
+                        <div class="text-sm text-gray-600">{{ track.artists[0].name }}</div>
                     </div>
-                    {% endfor %}
                 </div>
-                {% else %}
-                <p class="text-gray-600">No recent tracks found. Start listening to music on Spotify to see your mood analysis!</p>
-                {% endif %}
+                {% endfor %}
             </div>
+        </div>
 
-            <!-- Recommendations -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Recommendations</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {% for rec in recommendations %}
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-700 mb-2">{{ rec.title }}</h3>
-                        <p class="text-gray-600">{{ rec.description }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+        <!-- Mood Trend -->
+        <div class="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
+            <h2 class="text-2xl font-bold mb-4">Mood Trend</h2>
+            <canvas id="moodTrend" class="w-full" height="200"></canvas>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
+            <h2 class="text-2xl font-bold mb-4">Recommendations</h2>
+            <div class="prose max-w-none">
+                {{ recommendations | safe }}
             </div>
-        </main>
+        </div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('moodTrendChart').getContext('2d');
-            const labels = JSON.parse('{{ trend_dates|tojson|safe }}');
-            const data = JSON.parse('{{ trend_scores|tojson|safe }}');
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Mood Score',
-                        data,
-                        borderColor: 'rgb(59, 130, 246)',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1,
-                            ticks: {
-                                callback: (value) => `${(value * 100).toFixed(0)}%`
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `Mood: ${(context.parsed.y * 100).toFixed(0)}%`
-                            }
-                        }
-                    }
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('moodTrend').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_data.labels | tojson }},
+            datasets: [{
+                label: 'Mood Score',
+                data: {{ trend_data.values | tojson }},
+                borderColor: 'rgb(59, 130, 246)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
                 }
-            });
-        });
-    </script>
-</body>
-</html>
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
