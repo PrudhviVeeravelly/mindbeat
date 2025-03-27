@@ -6,7 +6,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.api import auth, frontend
 from app.core.config import settings
 
 app = FastAPI(
@@ -39,11 +38,12 @@ app.add_middleware(
     https_only=settings.USE_HTTPS
 )
 
-# Include routers
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(frontend.router, tags=["frontend"])
-
 @app.get("/")
 def root():
     """Root endpoint."""
     return {"status": "ok"}
+
+# Import routers after app creation to avoid circular imports
+from app.api import auth, frontend
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(frontend.router, tags=["frontend"])
