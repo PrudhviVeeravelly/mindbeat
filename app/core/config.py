@@ -20,7 +20,12 @@ class Settings(BaseSettings):
 
     # Environment
     ENVIRONMENT: str = "development"
-    USE_HTTPS: bool = False
+    _USE_HTTPS: str = "false"  # Store as string, convert in property
+
+    @property
+    def USE_HTTPS(self) -> bool:
+        """Convert string to bool for USE_HTTPS."""
+        return str(self._USE_HTTPS).lower() == "true"
 
     # Spotify API - Optional during startup
     SPOTIFY_CLIENT_ID: Optional[str] = None
@@ -56,12 +61,12 @@ class Settings(BaseSettings):
         """Check if Spotify credentials are configured."""
         return bool(self.SPOTIFY_CLIENT_ID and self.SPOTIFY_CLIENT_SECRET)
 
-    class Config:
-        """Pydantic settings config."""
-        env_file = ".env"
-        case_sensitive = True
-        extra = "allow"  # Allow extra fields in .env
-        validate_default = False  # Don't validate default values
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        env_prefix="",
+        validate_default=False  # Don't validate default values
+    )
 
 
 # Create settings instance with validation_mode="wrap" to be more permissive
