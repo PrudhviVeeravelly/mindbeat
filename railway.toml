@@ -3,8 +3,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"  # Explicitly set the start command
-healthcheckPath = "/health"  # Use our new health check endpoint
+startCommand = "sh -c 'uvicorn app.main:app --host 0.0.0.0 --port ${PORT}'"  # Use shell for env var expansion
+healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
