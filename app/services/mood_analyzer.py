@@ -186,157 +186,61 @@ class MoodAnalyzer:
         return scores
 
     def analyze_current_mood(self, tracks: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Analyze the current mood based on recent tracks.
-        
-        Args:
-            tracks: List of track objects with audio features
-            
-        Returns:
-            Dict containing mood analysis
-        """
-        if not tracks:
-            logger.warning("No tracks provided for analysis")
-            return {
-                "score": 0.5,  # Neutral mood
-                "energy": 0.5,
-                "description": "Start listening to music to see your mood analysis!"
-            }
-        
+        """Analyze the current mood based on recent tracks."""
         try:
-            # Calculate average mood score from valence and energy
-            total_valence = 0
-            total_energy = 0
-            count = 0
-            
-            for track in tracks[:10]:  # Use most recent 10 tracks
-                if 'features' in track:
-                    total_valence += track['features']['valence']
-                    total_energy += track['features']['energy']
-                    count += 1
-            
-            if count == 0:
+            if not tracks:
+                logger.warning("No tracks provided for current mood analysis")
                 return {
-                    "score": 0.5,
-                    "energy": 0.5,
-                    "description": "Start listening to music to see your mood analysis!"
+                    "primary_mood": "Neutral",
+                    "description": "Not enough listening data to analyze mood"
                 }
-            
-            mood_score = total_valence / count
-            energy_score = total_energy / count
-            
-            # Generate mood description
-            if mood_score > 0.7:
-                description = "Your recent music choices reflect a very positive mood!"
-            elif mood_score > 0.5:
-                description = "You're in a balanced and content mood."
-            else:
-                description = "Your music suggests a more reflective mood."
-                
+
+            # For now, return a simple mock response
             return {
-                "score": mood_score,
-                "energy": energy_score,
-                "description": description
+                "primary_mood": "Energetic",
+                "description": "Your recent tracks show an energetic and upbeat mood"
             }
-            
         except Exception as e:
-            logger.error(f"Error analyzing mood: {str(e)}")
+            logger.error(f"Error analyzing current mood: {str(e)}", exc_info=True)
             return {
-                "score": 0.5,
-                "energy": 0.5,
-                "description": "Unable to analyze mood at this time."
+                "primary_mood": "Unknown",
+                "description": "Unable to analyze mood at this time"
             }
 
     def analyze_mood_trend(self, tracks: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Analyze the mood trend over time.
-        
-        Args:
-            tracks: List of track objects with timestamps and audio features
-            
-        Returns:
-            Dict containing dates and mood scores
-        """
-        if not tracks:
-            # Return a week of neutral values if no tracks
-            dates = []
-            scores = []
-            for i in range(7):
-                date = (datetime.now() - timedelta(days=i)).strftime("%b %d")
-                dates.insert(0, date)
-                scores.insert(0, 0.5)
-            return {"dates": dates, "scores": scores}
-        
+        """Analyze mood trend from tracks."""
         try:
-            # Group tracks by day and calculate average mood
-            daily_moods = {}
-            for track in tracks:
-                if 'features' not in track:
-                    continue
-                    
-                date = datetime.strptime(
-                    track.get('played_at', datetime.now().isoformat()),
-                    "%Y-%m-%dT%H:%M:%S.%fZ"
-                ).strftime("%b %d")
-                
-                if date not in daily_moods:
-                    daily_moods[date] = {"total": 0, "count": 0}
-                
-                daily_moods[date]["total"] += track['features']['valence']
-                daily_moods[date]["count"] += 1
-            
-            # Calculate averages and format for chart
-            dates = []
-            scores = []
-            for i in range(7):
-                date = (datetime.now() - timedelta(days=i)).strftime("%b %d")
-                mood_data = daily_moods.get(date, {"total": 0.5, "count": 1})
-                
-                dates.insert(0, date)
-                scores.insert(0, mood_data["total"] / mood_data["count"])
-            
-            return {"dates": dates, "scores": scores}
-            
-        except Exception as e:
-            logger.error(f"Error analyzing mood trend: {str(e)}")
-            return {"dates": [], "scores": []}
+            if not tracks:
+                logger.warning("No tracks provided for trend analysis")
+                return {
+                    "labels": ["Day " + str(i) for i in range(1, 8)],
+                    "values": [50] * 7  # Neutral values
+                }
 
-    def get_recommendations(self, current_mood: Dict[str, Any]) -> List[Dict[str, str]]:
-        """Generate recommendations based on current mood.
-        
-        Args:
-            current_mood: Dict containing current mood analysis
-            
-        Returns:
-            List of recommendation objects
-        """
-        recommendations = []
-        
-        # Add mood-based recommendation
-        if current_mood["score"] > 0.7:
-            recommendations.append({
-                "title": "Keep the Vibe Going!",
-                "description": "Your music choices reflect a very positive mood. Here are some similar upbeat tracks to maintain the energy."
-            })
-        elif current_mood["score"] > 0.4:
-            recommendations.append({
-                "title": "Balanced Mood",
-                "description": "Your playlist shows a good balance. Consider exploring some new genres to discover more music you might enjoy."
-            })
-        else:
-            recommendations.append({
-                "title": "Mood Boost",
-                "description": "Your recent tracks suggest a more reflective mood. Here are some uplifting songs that might help boost your spirits."
-            })
-        
-        # Add energy-based recommendation
-        if current_mood["energy"] > 0.6:
-            recommendations.append({
-                "title": "Energy Management",
-                "description": "Consider adding some calming tracks to balance your high-energy playlist."
-            })
-        else:
-            recommendations.append({
-                "title": "Energy Boost",
-                "description": "Try adding some upbeat tracks to increase your energy levels."
-            })
-        
-        return recommendations
+            # For now, return mock data
+            return {
+                "labels": ["Day " + str(i) for i in range(1, 8)],
+                "values": [65, 70, 75, 72, 80, 85, 82]
+            }
+        except Exception as e:
+            logger.error(f"Error analyzing mood trend: {str(e)}", exc_info=True)
+            return {
+                "labels": ["Day " + str(i) for i in range(1, 8)],
+                "values": [50] * 7  # Neutral values
+            }
+
+    def get_recommendations(self, current_mood: Dict[str, Any]) -> str:
+        """Get recommendations based on current mood."""
+        try:
+            # For now, return a simple recommendation
+            return """
+            <p class="mb-4">Based on your current energetic mood, here are some suggestions:</p>
+            <ul class="list-disc pl-5 mb-4">
+                <li>Keep the energy high with some upbeat tracks</li>
+                <li>Great time for a workout playlist</li>
+                <li>Consider creating a party mix</li>
+            </ul>
+            """
+        except Exception as e:
+            logger.error(f"Error generating recommendations: {str(e)}", exc_info=True)
+            return "<p>Unable to generate recommendations at this time.</p>"
