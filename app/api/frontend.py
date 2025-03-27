@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import os
 
@@ -34,38 +34,46 @@ async def dashboard(request: Request):
                 {"request": request}
             )
 
-        # Initialize services with access token
-        spotify = SpotifyService(access_token)
+        try:
+            # Initialize services with access token
+            spotify = SpotifyService(access_token)
 
-        # Get user profile and recent tracks
-        user = await spotify.get_user_profile()
-        recent_tracks = await spotify.get_recent_tracks(limit=20)
+            # Get user profile and recent tracks
+            user = await spotify.get_current_user()
+            recent_tracks = await spotify.get_recently_played(limit=20)
 
-        # Calculate mood scores
-        current_mood = mood_analyzer.analyze_current_mood(recent_tracks)
-        trend_data = mood_analyzer.analyze_mood_trend(recent_tracks)
+            # Calculate mood scores
+            current_mood = mood_analyzer.analyze_current_mood(recent_tracks)
+            trend_data = mood_analyzer.analyze_mood_trend(recent_tracks)
 
-        # Generate recommendations
-        recommendations = mood_analyzer.get_recommendations(current_mood)
+            # Generate recommendations
+            recommendations = mood_analyzer.get_recommendations(current_mood)
 
-        return templates.TemplateResponse(
-            "dashboard.html",
-            {
-                "request": request,
-                "user": user,
-                "current_mood": current_mood,
-                "trend_data": trend_data,
-                "recent_tracks": recent_tracks,
-                "recommendations": recommendations
-            }
-        )
+            return templates.TemplateResponse(
+                "dashboard.html",
+                {
+                    "request": request,
+                    "user": user,
+                    "current_mood": current_mood,
+                    "trend_data": trend_data,
+                    "recent_tracks": recent_tracks,
+                    "recommendations": recommendations
+                }
+            )
+        except HTTPException as he:
+            if he.status_code == 401:
+                # Token expired, redirect to login
+                request.session.clear()
+                return RedirectResponse(url="/")
+            raise
+            
     except Exception as e:
         logger.error(f"Error in dashboard: {str(e)}", exc_info=True)
         return templates.TemplateResponse(
             "error.html",
             {
                 "request": request,
-                "error": "An error occurred while loading your dashboard"
+                "error": f"An error occurred while loading your dashboard: {str(e)}"
             },
             status_code=500
         )
