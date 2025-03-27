@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from app.core.config import settings
 
@@ -59,6 +60,14 @@ if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 else:
     logger.warning(f"Static directory not found at {static_dir}")
+
+# Initialize templates
+templates_dir = os.path.join(os.path.dirname(__file__), "frontend", "templates")
+if os.path.exists(templates_dir):
+    templates = Jinja2Templates(directory=templates_dir)
+else:
+    logger.error(f"Templates directory not found at {templates_dir}")
+    raise RuntimeError("Templates directory not found")
 
 # Import routers after app creation to avoid circular imports
 from app.api import auth, frontend  # noqa
