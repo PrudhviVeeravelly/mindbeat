@@ -52,7 +52,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('moodTrend').getContext('2d');
     new Chart(ctx, {
         type: 'line',
@@ -62,15 +62,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'Mood Score',
                 data: {{ trend_data.values | tojson }},
                 borderColor: 'rgb(59, 130, 246)',
-                tension: 0.1
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.1,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             }
         }
