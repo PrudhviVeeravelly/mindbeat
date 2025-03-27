@@ -1,5 +1,5 @@
-# Use Python 3.9.18 slim image
-FROM python:3.9.18-slim
+# Use Python 3.9 slim image
+FROM python:3.9-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -35,6 +35,9 @@ RUN useradd -m -u 1000 appuser \
 
 # Switch to non-root user
 USER appuser
+
+# Create static directory
+RUN mkdir -p app/static
 
 # Expose port
 EXPOSE 8000
