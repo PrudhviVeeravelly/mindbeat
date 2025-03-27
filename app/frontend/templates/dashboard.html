@@ -50,17 +50,22 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js initialization -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const chartData = {
+        labels: {{ trend_data.labels | tojson }},
+        values: {{ trend_data.values | tojson }}
+    };
+
     const ctx = document.getElementById('moodTrend').getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {{ trend_data.labels | tojson }},
+            labels: chartData.labels,
             datasets: [{
                 label: 'Mood Score',
-                data: {{ trend_data.values | tojson }},
+                data: chartData.values,
                 borderColor: 'rgb(59, 130, 246)',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
