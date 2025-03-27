@@ -1,15 +1,15 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt"
 
 [deploy]
-startCommand = "sh -c 'uvicorn app.main:app --host 0.0.0.0 --port ${PORT}'"  # Use shell for env var expansion
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
-restartPolicyType = "ON_FAILURE"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
-[deploy.env]
+[env]
 ENVIRONMENT = "production"
 _USE_HTTPS = "true"
-_ALLOWED_HOSTS = "*.railway.app"
+_ALLOWED_HOSTS = "mindbeat-production.up.railway.app"
