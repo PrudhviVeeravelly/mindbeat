@@ -1,7 +1,9 @@
 """Configuration settings."""
+import logging
 from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     """Application settings."""
@@ -56,15 +58,23 @@ class Settings(BaseSettings):
     def get_spotify_redirect_uri(self) -> str:
         """Get the Spotify redirect URI based on environment."""
         if self.SPOTIFY_REDIRECT_URI:
+            logger.info(f"Using configured redirect URI: {self.SPOTIFY_REDIRECT_URI}")
             return self.SPOTIFY_REDIRECT_URI
         
         scheme = "https" if self.USE_HTTPS else "http"
         host = "localhost:8000" if not self.is_production else self.ALLOWED_HOSTS[0].replace("*.", "")
-        return f"{scheme}://{host}/auth/callback"
+        uri = f"{scheme}://{host}/auth/callback"
+        logger.info(f"Generated redirect URI: {uri}")
+        return uri
 
     def validate_spotify_credentials(self) -> bool:
         """Check if Spotify credentials are configured."""
-        return bool(self.SPOTIFY_CLIENT_ID and self.SPOTIFY_CLIENT_SECRET)
+        has_credentials = bool(self.SPOTIFY_CLIENT_ID and self.SPOTIFY_CLIENT_SECRET)
+        if not has_credentials:
+            logger.error("Missing Spotify credentials")
+            logger.error(f"SPOTIFY_CLIENT_ID set: {bool(self.SPOTIFY_CLIENT_ID)}")
+            logger.error(f"SPOTIFY_CLIENT_SECRET set: {bool(self.SPOTIFY_CLIENT_SECRET)}")
+        return has_credentials
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -75,3 +85,10 @@ class Settings(BaseSettings):
 
 # Create settings instance
 settings = Settings(_env_file=None)
+
+# Log initial configuration
+logger.info(f"Environment: {settings.ENVIRONMENT}")
+logger.info(f"HTTPS enabled: {settings.USE_HTTPS}")
+logger.info(f"Allowed hosts: {settings.ALLOWED_HOSTS}")
+logger.info(f"Spotify credentials configured: {settings.validate_spotify_credentials()}")
+logger.info(f"Spotify redirect URI: {settings.get_spotify_redirect_uri()}")
