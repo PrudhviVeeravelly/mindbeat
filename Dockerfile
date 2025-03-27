@@ -1,23 +1,15 @@
 # Use Python 3.9 slim image
 FROM python:3.9-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PORT=8000 \
-    PYTHONPATH=/app
-
-# Set working directory
-WORKDIR /app
-
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
-        curl \
-        python3-dev \
         libgomp1 \
     && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
@@ -27,7 +19,19 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY app app/
+
+# Create static directory
+RUN mkdir -p app/static
+
+# Create frontend templates directory
+RUN mkdir -p app/frontend/templates
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    PYTHONPATH=/app
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser \
@@ -35,9 +39,6 @@ RUN useradd -m -u 1000 appuser \
 
 # Switch to non-root user
 USER appuser
-
-# Create static directory
-RUN mkdir -p app/static
 
 # Expose port
 EXPOSE 8000
