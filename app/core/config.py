@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = False
     USE_HTTPS: bool = True
-    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1", "*.railway.app"]
     
     # Spotify API settings
     SPOTIFY_CLIENT_ID: Optional[str] = None
@@ -54,5 +54,12 @@ class Settings(BaseSettings):
     def validate_spotify_credentials(self) -> bool:
         """Validate that Spotify credentials are set."""
         return bool(self.SPOTIFY_CLIENT_ID and self.SPOTIFY_CLIENT_SECRET)
+        
+    def get_spotify_redirect_uri(self) -> str:
+        """Get the appropriate Spotify redirect URI based on environment."""
+        if self.is_production:
+            # Assuming the production URL pattern for Railway
+            return f"https://{self.ALLOWED_HOSTS[2].replace('*.', '')}/auth/callback"
+        return self.SPOTIFY_REDIRECT_URI
 
 settings = Settings()

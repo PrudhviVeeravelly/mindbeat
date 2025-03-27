@@ -57,7 +57,7 @@ app.include_router(frontend.router, tags=["frontend"])
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "Welcome to MindBeat"}
+    return {"status": "ok"}
 
 @app.get("/health")
 async def health_check():

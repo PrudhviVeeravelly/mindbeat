@@ -106,7 +106,7 @@ async def login(request: Request):
             "response_type": "code",
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "scope": " ".join(SPOTIFY_SCOPES),
-            "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+            "redirect_uri": settings.get_spotify_redirect_uri(),
             "state": state
         }
         
@@ -152,7 +152,7 @@ async def callback(request: Request, code: str, state: str):
             data={
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+                "redirect_uri": settings.get_spotify_redirect_uri(),
                 "client_id": settings.SPOTIFY_CLIENT_ID,
                 "client_secret": settings.SPOTIFY_CLIENT_SECRET
             }
