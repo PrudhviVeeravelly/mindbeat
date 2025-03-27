@@ -3,13 +3,13 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = ""  # Let Dockerfile handle the start command
-healthcheckPath = "/"
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"  # Explicitly set the start command
+healthcheckPath = "/health"  # Use our new health check endpoint
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
 [deploy.env]
 ENVIRONMENT = "production"
-USE_HTTPS = "true"
-ALLOWED_HOSTS = "*.railway.app"
+_USE_HTTPS = "true"
+_ALLOWED_HOSTS = "*.railway.app"
