@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+import os
 
 from app.services.spotify import SpotifyService
 from app.services.mood_analyzer import MoodAnalyzer
@@ -15,7 +16,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Initialize templates
-templates = Jinja2Templates(directory="app/frontend/templates")
+templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "templates")
+templates = Jinja2Templates(directory=templates_dir)
 mood_analyzer = MoodAnalyzer()
 
 @router.get("/", response_class=HTMLResponse)
@@ -51,19 +53,18 @@ async def dashboard(request: Request):
                 "request": request,
                 "user": user,
                 "current_mood": current_mood,
+                "trend_data": trend_data,
                 "recent_tracks": recent_tracks,
-                "trend_dates": trend_data["dates"],
-                "trend_scores": trend_data["scores"],
                 "recommendations": recommendations
             }
         )
-
     except Exception as e:
-        logger.error(f"Dashboard error: {str(e)}")
+        logger.error(f"Error in dashboard: {str(e)}", exc_info=True)
         return templates.TemplateResponse(
             "error.html",
             {
                 "request": request,
-                "error_message": "Failed to load dashboard. Please try logging in again."
-            }
+                "error": "An error occurred while loading your dashboard"
+            },
+            status_code=500
         )
