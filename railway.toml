@@ -1,6 +1,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
+buildCommand = ""
 
 [deploy]
 startCommand = ""  # Let Dockerfile handle the start command
