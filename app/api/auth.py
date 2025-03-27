@@ -4,10 +4,9 @@ from typing import Optional
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import RedirectResponse
 from starlette.responses import JSONResponse
-import spotipy
 
 from app.core.config import settings
-from app.services.spotify import SpotifyService
+from app.core.auth import create_spotify_oauth
 
 router = APIRouter()
 
@@ -21,12 +20,7 @@ async def login(request: Request):
         )
 
     try:
-        auth = spotipy.oauth2.SpotifyOAuth(
-            client_id=settings.SPOTIFY_CLIENT_ID,
-            client_secret=settings.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=settings.get_spotify_redirect_uri(),
-            scope="user-read-recently-played user-read-private user-read-email"
-        )
+        auth = create_spotify_oauth()
         auth_url = auth.get_authorize_url()
         return RedirectResponse(url=auth_url)
     except Exception as e:
@@ -51,12 +45,7 @@ async def callback(request: Request, code: Optional[str] = None, error: Optional
         )
 
     try:
-        auth = spotipy.oauth2.SpotifyOAuth(
-            client_id=settings.SPOTIFY_CLIENT_ID,
-            client_secret=settings.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=settings.get_spotify_redirect_uri(),
-            scope="user-read-recently-played user-read-private user-read-email"
-        )
+        auth = create_spotify_oauth()
         token_info = auth.get_access_token(code)
         
         # Store token in session
