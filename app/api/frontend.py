@@ -21,12 +21,13 @@ templates = Jinja2Templates(directory=templates_dir)
 mood_analyzer = MoodAnalyzer()
 
 @router.get("/", response_class=HTMLResponse)
+@router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     """Render the dashboard page."""
     try:
         # Get token info from session
-        token_info = request.session.get("token_info")
-        if not token_info:
+        access_token = request.session.get("access_token")
+        if not access_token:
             # Not logged in, show login page
             return templates.TemplateResponse(
                 "login.html",
@@ -34,7 +35,7 @@ async def dashboard(request: Request):
             )
 
         # Initialize services with access token
-        spotify = SpotifyService(token_info['access_token'])
+        spotify = SpotifyService(access_token)
 
         # Get user profile and recent tracks
         user = await spotify.get_user_profile()
