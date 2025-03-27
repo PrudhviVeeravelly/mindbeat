@@ -16,7 +16,12 @@ class Settings(BaseSettings):
     SESSION_MAX_AGE: int = 14 * 24 * 60 * 60  # 14 days in seconds
 
     # CORS
-    ALLOWED_HOSTS: List[str] = ["*"]
+    _ALLOWED_HOSTS: str = "*"  # Store as comma-separated string
+
+    @property
+    def ALLOWED_HOSTS(self) -> List[str]:
+        """Convert comma-separated string to list."""
+        return [h.strip() for h in self._ALLOWED_HOSTS.split(",")]
 
     # Environment
     ENVIRONMENT: str = "development"
@@ -68,6 +73,5 @@ class Settings(BaseSettings):
         validate_default=False  # Don't validate default values
     )
 
-
-# Create settings instance with validation_mode="wrap" to be more permissive
-settings = Settings(_env_file=None, _validate_default=False)
+# Create settings instance
+settings = Settings(_env_file=None)
